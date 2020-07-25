@@ -7,6 +7,7 @@ export class EventsController {
     @Post()
     async createEvents( @Body() dto:CreateEventsDto) {
         const result = CreateEventsDto.toResult(dto);
+        console.log(result);
         const current = await fsTools.readFilePlus('.log');
         const finalResult:Array<String> = Array.from (current.split('\n').filter(str => !!str));
         if(finalResult.length > 50) {
