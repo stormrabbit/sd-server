@@ -1,6 +1,7 @@
 import { Controller, Post, Body, Get } from '@nestjs/common';
 import { CreateEventsDto } from './create-events.dto';
 import {fsTools } from 'eschew-materials';
+import { json } from 'express';
 @Controller('v1/events')
 export class EventsController {
 
@@ -21,6 +22,16 @@ export class EventsController {
     @Get()
     async getEvents() {
         const result = await fsTools.readFilePlus('.log');
-        return result.split('\n').filter(str => !!str).map(str => `<p>${str}</p>`).join('');
+        const items = result.split('\n').map(item => {
+            const temp = item.split('\t').filter( it => !!it);
+            return {
+                timestrap : temp[0],
+                date: temp[1],
+                event: JSON.parse(temp[2]),
+            }
+        });
+
+        return items;
+        // return result.split('\n').filter(str => !!str).map(str => `<p>${str}</p>`).join('');
     }
 }
