@@ -1,46 +1,36 @@
 import { Controller, Post, Body, Get,Options } from '@nestjs/common';
 import { CreateEventsDto } from './create-events.dto';
-import {fsTools } from 'eschew-materials';
+import { EventsService } from './events.service';
 @Controller('v1/events')
 export class EventsController {
-    // @Options()
-    // async dealWithOptions() {
-    //     return 'ok'
-    // }
+    constructor(
+        private service: EventsService
+    ){}
+    @Post('/beacon')
+    async createEventsByBeancon(@Body() dto:any) {
+        if(typeof dto === 'object') {
+            for(const key of Object.keys(dto)) {
+                const result = this.service.parseResult(key);
+                this.service.create(result);
+                return result;
+            }
+        }
+        return 'error'
+    }
 
-    LIMIT = 20
-    // @Post()
-    // async createEvents( @Body() dto:CreateEventsDto) {
-    //     const result = CreateEventsDto.toResult(dto);
-    //     console.log(result);
-    //     const current = await fsTools.readFilePlus('.log');
-    //     const finalResult:Array<String> = Array.from (current.split('\n').filter(str => !!str));
-    //     if(finalResult.length > this.LIMIT) {
-    //         finalResult.shift();
-    //     }
-    //     finalResult.push(result);
-    //     await fsTools.writeFilePlus('.log', finalResult.filter(str => !!str).join('\n'));
-    //     return result;
-    // }
+
     @Post()
-    async createEvents( @Body() dto:any) {
-        console.log(dto);
-        return dto;
+    async createEvents( @Body() dto:CreateEventsDto) {
+        const result = this.service.parseResult(dto.eventStr);
+        await this.service.create(result);
+        return result;
     }
 
     @Get()
     async getEvents() {
-        const result = await fsTools.readFilePlus('.log');
-        const items = result.split('\n').map(item => {
-            const temp = item.split('\t').filter( it => !!it);
-            return {
-                timestrap : temp[0],
-                date: temp[1],
-                event: JSON.parse(temp[2]),
-            }
-        });
-
+        const items = await this.service.retrieveAll();
         return items.reverse();
-        // return result.split('\n').filter(str => !!str).map(str => `<p>${str}</p>`).join('');
     }
+
+    
 }
