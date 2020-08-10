@@ -28,7 +28,7 @@ export class EventsService {
             return {
                 timestrap: temp[0],
                 date: temp[1],
-                event: JSON.parse(temp[2]),
+                action: JSON.parse(temp[2]),
             };
         }): [];
     }
